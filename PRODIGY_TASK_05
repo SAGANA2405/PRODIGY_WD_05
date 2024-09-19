@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="location" placeholder="Enter city name">
+        <button id="getWeather">Get Weather</button>
+        <div id="weatherResult" class="weather-result"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+input {
+    padding: 10px;
+    width: 200px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.weather-result {
+    margin-top: 20px;
+}
+
+const apiKey = 'YOUR_API_KEY'; // Replace with your OpenWeatherMap API key
+const getWeatherButton = document.getElementById('getWeather');
+const weatherResult = document.getElementById('weatherResult');
+
+getWeatherButton.addEventListener('click', fetchWeather);
+
+async function fetchWeather() {
+    const location = document.getElementById('location').value;
+
+    if (!location) {
+        weatherResult.innerHTML = '<p>Please enter a location.</p>';
+        return;
+    }
+
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error('Location not found');
+        }
+
+        const data = await response.json();
+        displayWeather(data);
+    } catch (error) {
+        weatherResult.innerHTML = `<p>${error.message}</p>`;
+    }
+}
+
+function displayWeather(data) {
+    const { name } = data;
+    const { temp } = data.main;
+    const { description } = data.weather[0];
+    const { humidity } = data.main;
+    const { speed } = data.wind;
+
+    weatherResult.innerHTML = `
+        <h2>Weather in ${name}</h2>
+        <p>Temperature: ${temp}°C</p>
+        <p>Condition: ${description}</p>
+        <p>Humidity: ${humidity}%</p>
+        <p>Wind Speed: ${speed} m/s</p>
+    `;
+}
